@@ -13,6 +13,7 @@ TagManager:
   - LeftWall
   - CheckPoints
   - RightWall
+  - Transition
   layers:
   - Default
   - TransparentFX

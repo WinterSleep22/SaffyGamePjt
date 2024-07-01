@@ -4,17 +4,16 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class CreditMenuManager : MonoBehaviour
-{
-        
-    public GameObject endingIllustration;       // 엔딩 일러스트 오브젝트
-    public Text congratulationsText;            // 'Congratulations!' 텍스트
-    public Text creditText;                     // 크레딧 텍스트
-    public Button returnButton;                 // 게임 진입 화면으로 돌아가는 버튼
-    public float fadeOutDuration = 5f;          // 페이드 아웃 지속 시간
-    public float scrollSpeed = 30f;             // 스크롤 속도
-    public float scrollHeight = 1000f;          // 스크롤할 높이
+{    
+    public Image cutGraphic;
+    public Text textLocation;
+    public float duration;
+    [TextArea]
+    public string[] dialog;
 
-       
+    private Color tmpColor;
+
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -24,14 +23,53 @@ public class CreditMenuManager : MonoBehaviour
 
     void Start()
     {
-
-        // 버튼을 활성화하고 클릭 이벤트를 설정
-        returnButton.gameObject.SetActive(true);
-        returnButton.onClick.AddListener(ToMainMenu);
-
-        StartCoroutine(CreditSequence());
+        StartCoroutine(Cor1());
     }
 
+    IEnumerator Cor1()
+    {
+        for (int i = 0; i < dialog.Length; i++)
+        {
+            textLocation.text = dialog[i];
+            yield return new WaitForSeconds(duration);
+        }
+        Hub.StageManager.ToMenu();
+        yield return null;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
     IEnumerator CreditSequence()
     {
         // 엔딩 일러스트를 활성화
@@ -83,7 +121,7 @@ public class CreditMenuManager : MonoBehaviour
     {
         Hub.StageManager.ToScene("Menu");
     }
-
+    */
 
 
 

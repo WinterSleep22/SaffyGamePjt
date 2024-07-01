@@ -20,7 +20,7 @@ public class MainMenuManager : MonoBehaviour
 
     public void ButtonGameStart()
     {
-        Hub.StageManager.ToScene("Stage1");
+        Hub.StageManager.GameOn("1. test1");
     }
 
     public void ButtonCredit()

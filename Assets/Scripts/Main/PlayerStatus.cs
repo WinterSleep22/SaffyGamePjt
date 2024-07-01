@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum PlayerState
 {
@@ -10,6 +11,9 @@ public enum PlayerState
     skill
 }
 
+
+// 왼쪽 향하고 있는지 오른쪽 향하고 있는지 확인해서 
+// 스킬이나 정령 소환의 방향을 부여하는 역할.
 public enum Direct
 {
     left,
@@ -26,6 +30,7 @@ public class PlayerStatus : MonoBehaviour
 
     [Header("Status part")]
     public List<GameObject> fullHP = new List<GameObject>();
+    public List<GameObject> fullKey = new List<GameObject>();
     private double _CurrentHP = 0;
     public double CurrentHP
     {
@@ -85,10 +90,50 @@ public class PlayerStatus : MonoBehaviour
         }
     }
 
-    public bool isFireGet;
-    public bool isWaterGet;
-    public bool isWindGet;
-    public bool isStoneGet;
+    private bool _IsFireGet = false;
+    public bool IsFireGet
+    {
+        get { return _IsFireGet; }
+        set
+        {
+            if (value) Hub.UIManager.spiritFireCover.SetActive(false);
+            else Hub.UIManager.spiritFireCover.SetActive(true);
+            _IsFireGet = value;
+        }
+    }
+    private bool _IsWaterGet = false;
+    public bool IsWaterGet
+    {
+        get { return _IsWaterGet; }
+        set
+        {
+            if (value) Hub.UIManager.spiritWaterCover.SetActive(false);
+            else Hub.UIManager.spiritWaterCover.SetActive(true);
+            _IsWaterGet = value;
+        }
+    }
+    private bool _IsWindGet = false;
+    public bool IsWindGet
+    {
+        get { return _IsWindGet; }
+        set
+        {
+            if (value) Hub.UIManager.spiritWindCover.SetActive(false);
+            else Hub.UIManager.spiritWindCover.SetActive(true);
+            _IsWindGet = value;
+        }
+    }
+    private bool _IsStoneGet = false;
+    public bool IsStoneGet
+    {
+        get { return _IsStoneGet; }
+        set
+        {
+            if (value) Hub.UIManager.spiritStoneCover.SetActive(false);
+            else Hub.UIManager.spiritStoneCover.SetActive(true);
+            _IsStoneGet = value;
+        }
+    }
     public PlayerState currentPlayerState;
     //왼쪽인지 오른쪽인지 확인
     public Direct currentDirection;
@@ -99,11 +144,11 @@ public class PlayerStatus : MonoBehaviour
     public GameObject spiritWater;
     public GameObject spiritWind;
     public GameObject spiritStone;
-    public GameObject hpObject;
+    public GameObject hpObject;    
 
     [Header("CurrentPosition")]
     public bool isInPortal;
-    public bool isKey;
+    public bool isKeyAll;
     private int _KeyCount = 0;
     public int KeyCount
     {
@@ -111,6 +156,11 @@ public class PlayerStatus : MonoBehaviour
         set
         {
             _KeyCount = value;
+            for (int i = 0; i < _KeyCount; i++) fullKey[0].GetComponent<Image>().sprite = Hub.UIManager.keyObject_found;
+
+            // 오류가 있을 수 있어서 fullKey.Length가 아닌 Hub.StageManager.RequiredKeyAmount[Hub.StageManager.currentStage] 이걸 사용한다.
+            if (_KeyCount >= Hub.StageManager.RequiredKeyAmount[Hub.StageManager.currentStage]) isKeyAll = true;
+            else isKeyAll = false;
         }
 
     }
@@ -127,9 +177,7 @@ public class PlayerStatus : MonoBehaviour
 
 
     public void Awake()
-    {
-        GetFullHP(3);
-        SetCurrentHP(3);
+    {        
         currentPlayerState = PlayerState.free;
     }
 
@@ -179,9 +227,27 @@ public class PlayerStatus : MonoBehaviour
 
 
 
+    public void GetFullKey(int amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            GameObject thisKey = Instantiate(Hub.UIManager.keyObject);
+            fullKey.Add(thisKey);
+            thisKey.transform.SetParent(Hub.UIManager.keyBarObject.transform);
+            thisKey.transform.localScale = new Vector3(1, 1, 1);
+            //Hub.UIManager.GetFullHP(amount);
+        }
+    }
 
-
-
+    public void DestroyFullKey(int amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            GameObject.Destroy(fullKey[0]);
+            fullKey.Remove(fullKey[0]);            
+        }
+        fullKey.Clear();
+    }
 
 
     public void GetFullHP(int amount)
@@ -196,7 +262,8 @@ public class PlayerStatus : MonoBehaviour
         }
 
     }
-
+    
+    // 0.5 단위로 증가시키거나 감소시키기 
     public void SetCurrentHP(double amount)
     {
         double tmp = CurrentHP + amount;
@@ -204,6 +271,19 @@ public class PlayerStatus : MonoBehaviour
         CurrentHP = tmp;
 
 
+    }
+
+    public void DestroyFullHP()
+    {
+        try
+        {
+            while ( fullHP[0] != null)
+            {
+                Destroy(fullHP[0]);
+                fullHP.Remove(fullHP[0]);
+            }
+        }
+        catch { }
     }
 
     public void SetCoolTime(int sprNum, float coolTime)

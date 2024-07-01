@@ -10,7 +10,11 @@ public class MovingPlatform : MonoBehaviour {
 	public Transform currentPoint;  
 	public Transform[] points;  
 	public int pointSelection; 
-	public Rigidbody2D rb;  
+	public Rigidbody2D rb;
+    private bool isPause;
+    // 이 플랫폼에 타고 나서야 움직이는지 여부 
+    public bool isModeHopOn;
+    public float pauseDuration;
     
 
 
@@ -24,9 +28,9 @@ public class MovingPlatform : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        MoveObj();
+        if (!isPause & !isModeHopOn) MoveObj();
 
-	}
+    }
 
     void MoveObj()
     {
@@ -34,12 +38,34 @@ public class MovingPlatform : MonoBehaviour {
         platform.transform.position = Vector2.MoveTowards(platform.transform.position, currentPoint.position, Time.deltaTime * moveSpeed);
         if (platform.transform.position == currentPoint.position)
         {
+            isPause = true;            
             pointSelection++;
             if (pointSelection == points.Length)
             {
                 pointSelection = 0;
             }
             currentPoint = points[pointSelection];
+            StartCoroutine(WaitForAWhile());
         }
     }
+
+    IEnumerator WaitForAWhile()
+    {
+        yield return new WaitForSeconds(pauseDuration);
+        isPause = false;
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        other.transform.SetParent(transform);
+        if (isModeHopOn) isModeHopOn = false;
+    }
+
+    private void OnCollisionExit2D(Collision2D other)
+    {
+        other.transform.SetParent(null);
+    }
+
+
+
 }
